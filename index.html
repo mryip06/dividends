@@ -355,6 +355,11 @@
         }
     }
 
+    // 格式化數字顯示，避免浮點數誤差如 2009.9999999999998
+    function formatResult(val, decimals = 2) {
+        return Number(Number(val).toFixed(decimals));
+    }
+
     function toggleStep(step) {
         const body = document.getElementById(`body-${step}`);
         const btn = document.querySelector(`#step-${step} .btn-toggle`);
@@ -374,7 +379,6 @@
         const hands = Math.floor(Math.random() * 10) + 1; 
         const sharesPerHand = [100, 400, 500, 1000, 2000][Math.floor(Math.random() * 5)]; 
         
-        // 隨機生成帶有小數的換股價 (例如 2.5, 3.2, 4.5, 5.1 等，範圍 2.0 ~ 6.5)
         const convertPrice = parseFloat((Math.floor(Math.random() * 10) + 20) / 10);
 
         const dividendYieldPct = (dividend / price) * 100;
@@ -416,13 +420,13 @@
             `💡 <strong>解法：</strong> 股息率 = (每股股息 ÷ 現價) × 100%<br>算式：(${currentData.dividend} ÷ ${currentData.price}) × 100% = <strong>${currentData.answers.a.toFixed(2)}%</strong>`;
         
         document.getElementById('solution-b').innerHTML = 
-            `💡 <strong>解法：</strong> 總股息 = 總股數 × 每股股息<br>總股數 = ${currentData.hands} 手 × ${currentData.sharesPerHand} 股 = ${currentData.totalShares} 股<br>算式：${currentData.totalShares} × ${currentData.dividend} = <strong>$${currentData.answers.b.toFixed(2)}</strong>`;
+            `💡 <strong>解法：</strong> 總股息 = 總股數 × 每股股息<br>總股數 = ${currentData.hands} 手 × ${currentData.sharesPerHand} 股 = ${currentData.totalShares} 股<br>算式：${currentData.totalShares} × ${currentData.dividend} = <strong>$${formatResult(currentData.answers.b, 2)}</strong>`;
         
         document.getElementById('solution-c').innerHTML = 
-            `💡 <strong>解法：</strong> 最多可換股數 = 總股息 ÷ 換股價（向下取整數）<br>算式：${currentData.answers.b.toFixed(2)} ÷ ${currentData.convertPrice} = ${(currentData.answers.b / currentData.convertPrice).toFixed(4)}...<br>下捨入後為 <strong>${currentData.answers.c} 股</strong>`;
+            `💡 <strong>解法：</strong> 最多可換股數 = 總股息 ÷ 換股價（向下取整數）<br>算式：${formatResult(currentData.answers.b, 2)} ÷ ${currentData.convertPrice} = ${(currentData.answers.b / currentData.convertPrice).toFixed(4)}...<br>下捨入後為 <strong>${currentData.answers.c} 股</strong>`;
         
         document.getElementById('solution-d').innerHTML = 
-            `💡 <strong>解法：</strong> 餘下股息 = 總股息 - (換購股數 × 換股價)<br>算式：${currentData.answers.b.toFixed(2)} - (${currentData.answers.c} × ${currentData.convertPrice}) = <strong>$${currentData.answers.d.toFixed(2)}</strong>`;
+            `💡 <strong>解法：</strong> 餘下股息 = 總股息 - (換購股數 × 換股價)<br>算式：${formatResult(currentData.answers.b, 2)} - (${currentData.answers.c} × ${currentData.convertPrice}) = <strong>$${formatResult(currentData.answers.d, 2)}</strong>`;
     }
 
     function resetForm() {
@@ -482,11 +486,11 @@
 
             let isCorrect = false;
             if (Math.abs(userVal - correctVal) < 0.01) {
-                isCorrect = true; evalSpan.innerText = `= ${userVal.toFixed(2)}%`;
+                isCorrect = true; evalSpan.innerText = `= ${formatResult(userVal, 2)}%`;
             } else if (Math.abs(userVal - (correctVal/100)) < 0.0001) {
-                isCorrect = true; evalSpan.innerText = `= ${(userVal * 100).toFixed(2)}%`;
+                isCorrect = true; evalSpan.innerText = `= ${formatResult(userVal * 100, 2)}%`;
             } else {
-                evalSpan.innerText = `= ${(userVal > 1 ? userVal : userVal * 100).toFixed(2)}%`;
+                evalSpan.innerText = `= ${formatResult(userVal > 1 ? userVal : userVal * 100, 2)}%`;
             }
 
             currentData.evalTexts.a = evalSpan.innerText;
@@ -516,7 +520,8 @@
                 currentData.statuses.b = 'incorrect'; return;
             }
 
-            evalSpan.innerText = `= ${userVal}`;
+            const cleanVal = formatResult(userVal, 2);
+            evalSpan.innerText = `= ${cleanVal}`;
             currentData.evalTexts.b = evalSpan.innerText;
 
             if (Math.abs(userVal - correctVal) < 0.01) {
@@ -538,7 +543,7 @@
             if (isNaN(userVal)) {
                 evalSpan.innerText = '算式錯誤'; return;
             }
-            evalSpan.innerText = `= ${userVal.toFixed(2)}`;
+            evalSpan.innerText = `= ${formatResult(userVal, 2)}`;
             currentData.evalTexts.c1 = evalSpan.innerText;
         }
         else if (step === 'c2') {
@@ -590,7 +595,8 @@
                 currentData.statuses.d = 'incorrect'; return;
             }
 
-            evalSpan.innerText = `= ${userVal}`;
+            const cleanVal = formatResult(userVal, 2);
+            evalSpan.innerText = `= ${cleanVal}`;
             currentData.evalTexts.d = evalSpan.innerText;
 
             if (Math.abs(userVal - correctVal) < 0.01) {
@@ -673,9 +679,9 @@
         });
 
         document.getElementById('solution-a').innerHTML = `💡 <strong>解法：</strong> 股息率 = (${item.dividend} ÷ ${item.price}) × 100% = <strong>${item.answers.a.toFixed(2)}%</strong>`;
-        document.getElementById('solution-b').innerHTML = `💡 <strong>解法：</strong> 總股息 = ${item.totalShares} × ${item.dividend} = <strong>$${item.answers.b.toFixed(2)}</strong>`;
-        document.getElementById('solution-c').innerHTML = `💡 <strong>解法：</strong> 最多可換股數 = ${item.answers.b.toFixed(2)} ÷ ${item.convertPrice} = <strong>${item.answers.c} 股</strong>`;
-        document.getElementById('solution-d').innerHTML = `💡 <strong>解法：</strong> 餘下股息 = ${item.answers.b.toFixed(2)} - (${item.answers.c} × ${item.convertPrice}) = <strong>$${item.answers.d.toFixed(2)}</strong>`;
+        document.getElementById('solution-b').innerHTML = `💡 <strong>解法：</strong> 總股息 = ${item.totalShares} × ${item.dividend} = <strong>$${formatResult(item.answers.b, 2)}</strong>`;
+        document.getElementById('solution-c').innerHTML = `💡 <strong>解法：</strong> 最多可換股數 = ${formatResult(item.answers.b, 2)} ÷ ${item.convertPrice} = <strong>${item.answers.c} 股</strong>`;
+        document.getElementById('solution-d').innerHTML = `💡 <strong>解法：</strong> 餘下股息 = ${formatResult(item.answers.b, 2)} - (${item.answers.c} × ${item.convertPrice}) = <strong>$${formatResult(item.answers.d, 2)}</strong>`;
 
         document.getElementById('mode-banner').style.display = 'block';
         document.getElementById('history-label').innerText = `紀錄第 ${index + 1} / ${questionHistory.length} 題`;
