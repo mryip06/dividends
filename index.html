@@ -355,9 +355,9 @@
         }
     }
 
-    // 格式化數字顯示，避免浮點數誤差如 2009.9999999999998
+    // 嚴格將浮點數格式化為 2 位小數的字串，徹底杜絕 1.6000000000001364 這類誤差
     function formatResult(val, decimals = 2) {
-        return Number(Number(val).toFixed(decimals));
+        return Number(val).toFixed(decimals);
     }
 
     function toggleStep(step) {
@@ -417,7 +417,7 @@
         document.getElementById('label-c').innerText = `(c) 換股價 $${currentData.convertPrice}，最多可換多少股？`;
 
         document.getElementById('solution-a').innerHTML = 
-            `💡 <strong>解法：</strong> 股息率 = (每股股息 ÷ 現價) × 100%<br>算式：(${currentData.dividend} ÷ ${currentData.price}) × 100% = <strong>${currentData.answers.a.toFixed(2)}%</strong>`;
+            `💡 <strong>解法：</strong> 股息率 = (每股股息 ÷ 現價) × 100%<br>算式：(${currentData.dividend} ÷ ${currentData.price}) × 100% = <strong>${formatResult(currentData.answers.a, 2)}%</strong>`;
         
         document.getElementById('solution-b').innerHTML = 
             `💡 <strong>解法：</strong> 總股息 = 總股數 × 每股股息<br>總股數 = ${currentData.hands} 手 × ${currentData.sharesPerHand} 股 = ${currentData.totalShares} 股<br>算式：${currentData.totalShares} × ${currentData.dividend} = <strong>$${formatResult(currentData.answers.b, 2)}</strong>`;
@@ -520,8 +520,7 @@
                 currentData.statuses.b = 'incorrect'; return;
             }
 
-            const cleanVal = formatResult(userVal, 2);
-            evalSpan.innerText = `= ${cleanVal}`;
+            evalSpan.innerText = `= ${formatResult(userVal, 2)}`;
             currentData.evalTexts.b = evalSpan.innerText;
 
             if (Math.abs(userVal - correctVal) < 0.01) {
@@ -595,8 +594,7 @@
                 currentData.statuses.d = 'incorrect'; return;
             }
 
-            const cleanVal = formatResult(userVal, 2);
-            evalSpan.innerText = `= ${cleanVal}`;
+            evalSpan.innerText = `= ${formatResult(userVal, 2)}`;
             currentData.evalTexts.d = evalSpan.innerText;
 
             if (Math.abs(userVal - correctVal) < 0.01) {
@@ -678,7 +676,7 @@
             if(btn) btn.innerText = '摺疊 🔼';
         });
 
-        document.getElementById('solution-a').innerHTML = `💡 <strong>解法：</strong> 股息率 = (${item.dividend} ÷ ${item.price}) × 100% = <strong>${item.answers.a.toFixed(2)}%</strong>`;
+        document.getElementById('solution-a').innerHTML = `💡 <strong>解法：</strong> 股息率 = (${item.dividend} ÷ ${item.price}) × 100% = <strong>${formatResult(item.answers.a, 2)}%</strong>`;
         document.getElementById('solution-b').innerHTML = `💡 <strong>解法：</strong> 總股息 = ${item.totalShares} × ${item.dividend} = <strong>$${formatResult(item.answers.b, 2)}</strong>`;
         document.getElementById('solution-c').innerHTML = `💡 <strong>解法：</strong> 最多可換股數 = ${formatResult(item.answers.b, 2)} ÷ ${item.convertPrice} = <strong>${item.answers.c} 股</strong>`;
         document.getElementById('solution-d').innerHTML = `💡 <strong>解法：</strong> 餘下股息 = ${formatResult(item.answers.b, 2)} - (${item.answers.c} × ${item.convertPrice}) = <strong>$${formatResult(item.answers.d, 2)}</strong>`;
