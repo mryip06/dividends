@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票股息計算練習</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 680px;
+            width: 100%;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .mode-banner {
+            background-color: #f39c12;
+            color: white;
+            text-align: center;
+            padding: 6px;
+            font-size: 0.9em;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+            font-weight: bold;
+        }
+
+        .problem-statement {
+            background-color: #eef7fc;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            font-size: 1.1em;
+            color: #34495e;
+            margin-bottom: 25px;
+            border-radius: 4px;
+            line-height: 1.6;
+        }
+
+        .question-step {
+            margin-bottom: 20px;
+            background: #fafbfc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e1e4e8;
+            transition: all 0.3s ease;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .btn-toggle {
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            color: #7f8c8d;
+            padding: 4px 10px;
+            font-size: 0.85em;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-toggle:hover {
+            background-color: #bdc3c7;
+            color: #2c3e50;
+        }
+
+        .step-body {
+            transition: all 0.3s ease;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"] {
+            padding: 10px 12px;
+            font-size: 1em;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            width: 220px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #3498db;
+        }
+
+        .btn-submit {
+            padding: 10px 16px;
+            font-size: 0.95em;
+            font-weight: bold;
+            color: white;
+            background-color: #3498db;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #2980b9;
+        }
+
+        .status-icon {
+            font-size: 1.2em;
+            font-weight: bold;
+            width: 25px;
+        }
+
+        .status-icon.correct {
+            color: #2ecc71;
+        }
+
+        .status-icon.incorrect {
+            color: #e74c3c;
+        }
+
+        .evaluated-result {
+            font-size: 1em;
+            font-weight: bold;
+            color: #2980b9;
+            margin-left: 5px;
+        }
+
+        .hint {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        .solution-box {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 12px;
+            background-color: #fff9e6;
+            border: 1px solid #ffe599;
+            border-radius: 6px;
+            color: #d68910;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .footer-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            border-top: 2px solid #ecf0f1;
+            padding-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .history-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-history {
+            padding: 8px 14px;
+            font-size: 0.9em;
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-history:hover {
+            background-color: #7f8c8d;
+        }
+
+        .btn-next-q {
+            background-color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .btn-next-q:hover {
+            background-color: #27ae60;
+        }
+
+        .score-board {
+            font-weight: bold;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>股票股息計算練習</h2>
+    
+    <div id="mode-banner" class="mode-banner">👀 正在檢視歷史作答紀錄（唯讀模式）</div>
+
+    <div id="problem" class="problem-statement">
+        載入中...
+    </div>
+
+    <!-- Part A -->
+    <div id="step-a" class="question-step">
+        <div class="step-header">
+            <label for="ans-a">(a) 求股息率 (%)：</label>
+            <button class="btn-toggle" onclick="toggleStep('a')">摺疊 🔼</button>
+        </div>
+        <div class="step-body" id="body-a">
+            <div class="input-group">
+                <input type="text" id="ans-a" placeholder="例: 0.61/10 或 0.61/10*100">
+                <button class="btn-submit" id="btn-a" onclick="submitAnswer('a')">提交</button>
+                <span id="icon-a" class="status-icon"></span>
+                <span id="eval-a" class="evaluated-result"></span>
+            </div>
+            <div class="hint">可輸入小數 (0.061) 或 百分比算式 (0.61/10)，按 Enter 跳至下一框</div>
+            <div id="solution-a" class="solution-box"></div>
+        </div>
+    </div>
+
+    <!-- Part B -->
+    <div id="step-b" class="question-step">
+        <div class="step-header">
+            <label for="ans-b">(b) 求總股息 ($)：</label>
+            <button class="btn-toggle" onclick="toggleStep('b')">摺疊 🔼</button>
+        </div>
+        <div class="step-body" id="body-b">
+            <div class="input-group">
+                <input type="text" id="ans-b" placeholder="例: 0.61 * 200">
+                <button class="btn-submit" id="btn-b" onclick="submitAnswer('b')">提交</button>
+                <span id="icon-b" class="status-icon"></span>
+                <span id="eval-b" class="evaluated-result"></span>
+            </div>
+            <div class="hint">按 Enter 跳至下一框</div>
+            <div id="solution-b" class="solution-box"></div>
+        </div>
+    </div>
+
+    <!-- Part C -->
+    <div id="step-c" class="question-step">
+        <div class="step-header">
+            <label id="label-c">(c) 換股價 $--，最多可換多少股？</label>
+            <button class="btn-toggle" onclick="toggleStep('c')">摺疊 🔼</button>
+        </div>
+        <div class="step-body" id="body-c">
+            <!-- C 的第一個輸入框：算式 -->
+            <div class="input-group">
+                <input type="text" id="ans-c1" placeholder="算式例: 122 / 2.5">
+                <button class="btn-submit" id="btn-c1" onclick="submitAnswer('c1')">計算算式</button>
+                <span id="eval-c1" class="evaluated-result"></span>
+            </div>
+            <div class="hint">第1步：輸入算式並按 Enter 顯示結果</div>
+
+            <!-- C 的第二個輸入框：最終整數答案 -->
+            <div class="input-group" style="margin-top: 10px;">
+                <input type="text" id="ans-c2" placeholder="整數股數例: 48">
+                <button class="btn-submit" id="btn-c2" onclick="submitAnswer('c2')">提交答案</button>
+                <span id="icon-c" class="status-icon"></span>
+                <span id="eval-c2" class="evaluated-result"></span>
+            </div>
+            <div class="hint">第2步：輸入最終整數股數（注意下捨入），按 Enter 提交</div>
+            
+            <div id="solution-c" class="solution-box"></div>
+        </div>
+    </div>
+
+    <!-- Part D -->
+    <div id="step-d" class="question-step">
+        <div class="step-header">
+            <label for="ans-d">(d) 承上題，餘下多少股息 ($)？</label>
+            <button class="btn-toggle" onclick="toggleStep('d')">摺疊 🔼</button>
+        </div>
+        <div class="step-body" id="body-d">
+            <div class="input-group">
+                <input type="text" id="ans-d" placeholder="例: 122 - 48*2.5">
+                <button class="btn-submit" id="btn-d" onclick="submitAnswer('d')">提交</button>
+                <span id="icon-d" class="status-icon"></span>
+                <span id="eval-d" class="evaluated-result"></span>
+            </div>
+            <div class="hint">按 Enter 提交</div>
+            <div id="solution-d" class="solution-box"></div>
+        </div>
+    </div>
+
+    <div class="footer-panel">
+        <div class="history-controls" id="history-controls">
+            <button class="btn-history" id="btn-prev-history" onclick="viewHistory(-1)" style="display:none;">⬅️ 上一題</button>
+            <span id="history-label" style="font-size: 0.85em; color: #7f8c8d; display:none;"></span>
+            <button class="btn-history" id="btn-next-history" onclick="viewHistory(1)" style="display:none;">下一題紀錄 ➡️</button>
+            <button class="btn-history" id="btn-back-current" onclick="backToCurrent()" style="display:none; background-color: #2980b9;">返回當前題目</button>
+            
+            <button class="btn-history btn-next-q" onclick="nextQuestion()">換下一題 ➡️</button>
+        </div>
+        <div class="score-board">
+            已完成題目：<span id="completed-count">0</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const companyNames = ["長江實業", "中電控股", "中華煤氣", "匯豐控股", "港鐵公司", "騰訊控股", "中國移動", "建設銀行"];
+    
+    let currentData = {};
+    let completedCount = 0;
+    
+    let questionHistory = [];
+    let viewingHistoryIndex = null;
+
+    const inputSequence = ['ans-a', 'ans-b', 'ans-c1', 'ans-c2', 'ans-d'];
+
+    function safeEval(str) {
+        try {
+            const sanitized = str.replace(/[^\d.+\-*/() ]/g, '');
+            if (!sanitized.trim()) return NaN;
+            return Function(`'use strict'; return (${sanitized})`)();
+        } catch (e) {
+            return NaN;
+        }
+    }
+
+    function toggleStep(step) {
+        const body = document.getElementById(`body-${step}`);
+        const btn = document.querySelector(`#step-${step} .btn-toggle`);
+        if (body.style.display === 'none') {
+            body.style.display = 'block';
+            btn.innerText = '摺疊 🔼';
+        } else {
+            body.style.display = 'none';
+            btn.innerText = '展開 🔽';
+        }
+    }
+
+    function generateQuestion() {
+        const company = companyNames[Math.floor(Math.random() * companyNames.length)];
+        const price = (Math.floor(Math.random() * 80) + 10); 
+        const dividend = parseFloat((Math.random() * 2 + 0.1).toFixed(2)); 
+        const hands = Math.floor(Math.random() * 10) + 1; 
+        const sharesPerHand = [100, 400, 500, 1000, 2000][Math.floor(Math.random() * 5)]; 
+        
+        // 隨機生成帶有小數的換股價 (例如 2.5, 3.2, 4.5, 5.1 等，範圍 2.0 ~ 6.5)
+        const convertPrice = parseFloat((Math.floor(Math.random() * 10) + 20) / 10);
+
+        const dividendYieldPct = (dividend / price) * 100;
+        const totalShares = hands * sharesPerHand;
+        const totalDividend = totalShares * dividend;
+        const maxConvertedShares = Math.floor(totalDividend / convertPrice);
+        const remainingDividend = totalDividend - (maxConvertedShares * convertPrice);
+
+        currentData = {
+            company,
+            price,
+            dividend,
+            hands,
+            sharesPerHand,
+            totalShares,
+            convertPrice,
+            answers: {
+                a: dividendYieldPct,
+                b: totalDividend,
+                c: maxConvertedShares,
+                d: remainingDividend
+            },
+            userInputs: { a: '', b: '', c1: '', c2: '', d: '' },
+            evalTexts: { a: '', b: '', c1: '', c2: '', d: '' },
+            statuses: { a: '', b: '', c: '', d: '' }
+        };
+
+        renderCurrentQuestion();
+        resetForm();
+    }
+
+    function renderCurrentQuestion() {
+        document.getElementById('problem').innerHTML = 
+            `<strong>${currentData.company}</strong> 現價每股 $${currentData.price}，末期息每股 $${currentData.dividend}，某人持有 ${currentData.hands} 手，每手 ${currentData.sharesPerHand} 股。`;
+        
+        document.getElementById('label-c').innerText = `(c) 換股價 $${currentData.convertPrice}，最多可換多少股？`;
+
+        document.getElementById('solution-a').innerHTML = 
+            `💡 <strong>解法：</strong> 股息率 = (每股股息 ÷ 現價) × 100%<br>算式：(${currentData.dividend} ÷ ${currentData.price}) × 100% = <strong>${currentData.answers.a.toFixed(2)}%</strong>`;
+        
+        document.getElementById('solution-b').innerHTML = 
+            `💡 <strong>解法：</strong> 總股息 = 總股數 × 每股股息<br>總股數 = ${currentData.hands} 手 × ${currentData.sharesPerHand} 股 = ${currentData.totalShares} 股<br>算式：${currentData.totalShares} × ${currentData.dividend} = <strong>$${currentData.answers.b.toFixed(2)}</strong>`;
+        
+        document.getElementById('solution-c').innerHTML = 
+            `💡 <strong>解法：</strong> 最多可換股數 = 總股息 ÷ 換股價（向下取整數）<br>算式：${currentData.answers.b.toFixed(2)} ÷ ${currentData.convertPrice} = ${(currentData.answers.b / currentData.convertPrice).toFixed(4)}...<br>下捨入後為 <strong>${currentData.answers.c} 股</strong>`;
+        
+        document.getElementById('solution-d').innerHTML = 
+            `💡 <strong>解法：</strong> 餘下股息 = 總股息 - (換購股數 × 換股價)<br>算式：${currentData.answers.b.toFixed(2)} - (${currentData.answers.c} × ${currentData.convertPrice}) = <strong>$${currentData.answers.d.toFixed(2)}</strong>`;
+    }
+
+    function resetForm() {
+        inputSequence.forEach(id => {
+            const input = document.getElementById(id);
+            input.value = '';
+            input.disabled = false;
+        });
+
+        ['a', 'b', 'c', 'd'].forEach(step => {
+            document.getElementById(`solution-${step}`).style.display = 'none';
+            const body = document.getElementById(`body-${step}`);
+            if(body) body.style.display = 'block';
+            const btn = document.querySelector(`#step-${step} .btn-toggle`);
+            if(btn) btn.innerText = '摺疊 🔼';
+        });
+
+        ['eval-a', 'eval-b', 'eval-c1', 'eval-c2', 'eval-d'].forEach(id => {
+            document.getElementById(id).innerText = '';
+        });
+
+        document.getElementById('icon-a').innerText = '';
+        document.getElementById('icon-a').className = 'status-icon';
+        document.getElementById('icon-c').innerText = '';
+        document.getElementById('icon-c').className = 'status-icon';
+        document.getElementById('icon-b').innerText = '';
+        document.getElementById('icon-b').className = 'status-icon';
+        document.getElementById('icon-d').innerText = '';
+        document.getElementById('icon-d').className = 'status-icon';
+
+        document.getElementById('mode-banner').style.display = 'none';
+        updateHistoryButtonsVisibility();
+    }
+
+    function submitAnswer(step) {
+        if (viewingHistoryIndex !== null) return; 
+
+        if (step === 'a') {
+            const input = document.getElementById('ans-a');
+            const icon = document.getElementById('icon-a');
+            const evalSpan = document.getElementById('eval-a');
+            document.getElementById('solution-a').style.display = 'block';
+            currentData.userInputs.a = input.value;
+
+            if (!input.value.trim()) {
+                icon.innerText = '⚠️'; evalSpan.innerText = '(未作答)';
+                currentData.statuses.a = 'empty'; return;
+            }
+
+            let userVal = safeEval(input.value);
+            const correctVal = currentData.answers.a;
+
+            if (isNaN(userVal)) {
+                icon.innerText = '✗'; icon.className = 'status-icon incorrect'; evalSpan.innerText = '';
+                currentData.statuses.a = 'incorrect'; return;
+            }
+
+            let isCorrect = false;
+            if (Math.abs(userVal - correctVal) < 0.01) {
+                isCorrect = true; evalSpan.innerText = `= ${userVal.toFixed(2)}%`;
+            } else if (Math.abs(userVal - (correctVal/100)) < 0.0001) {
+                isCorrect = true; evalSpan.innerText = `= ${(userVal * 100).toFixed(2)}%`;
+            } else {
+                evalSpan.innerText = `= ${(userVal > 1 ? userVal : userVal * 100).toFixed(2)}%`;
+            }
+
+            currentData.evalTexts.a = evalSpan.innerText;
+            if (isCorrect) {
+                icon.innerText = '✓'; icon.className = 'status-icon correct'; currentData.statuses.a = 'correct';
+            } else {
+                icon.innerText = '✗'; icon.className = 'status-icon incorrect'; currentData.statuses.a = 'incorrect';
+            }
+        } 
+        else if (step === 'b') {
+            const input = document.getElementById('ans-b');
+            const icon = document.getElementById('icon-b');
+            const evalSpan = document.getElementById('eval-b');
+            document.getElementById('solution-b').style.display = 'block';
+            currentData.userInputs.b = input.value;
+
+            if (!input.value.trim()) {
+                icon.innerText = '⚠️'; evalSpan.innerText = '(未作答)';
+                currentData.statuses.b = 'empty'; return;
+            }
+
+            let userVal = safeEval(input.value);
+            const correctVal = currentData.answers.b;
+
+            if (isNaN(userVal)) {
+                icon.innerText = '✗'; icon.className = 'status-icon incorrect'; evalSpan.innerText = '';
+                currentData.statuses.b = 'incorrect'; return;
+            }
+
+            evalSpan.innerText = `= ${userVal}`;
+            currentData.evalTexts.b = evalSpan.innerText;
+
+            if (Math.abs(userVal - correctVal) < 0.01) {
+                icon.innerText = '✓'; icon.className = 'status-icon correct'; currentData.statuses.b = 'correct';
+            } else {
+                icon.innerText = '✗'; icon.className = 'status-icon incorrect'; currentData.statuses.b = 'incorrect';
+            }
+        }
+        else if (step === 'c1') {
+            const input = document.getElementById('ans-c1');
+            const evalSpan = document.getElementById('eval-c1');
+            currentData.userInputs.c1 = input.value;
+
+            if (!input.value.trim()) {
+                evalSpan.innerText = '(未作答)'; return;
+            }
+
+            let userVal = safeEval(input.value);
+            if (isNaN(userVal)) {
+                evalSpan.innerText = '算式錯誤'; return;
+            }
+            evalSpan.innerText = `= ${userVal.toFixed(2)}`;
+            currentData.evalTexts.c1 = evalSpan.innerText;
+        }
+        else if (step === 'c2') {
+            const input = document.getElementById('ans-c2');
+            const icon = document.getElementById('icon-c');
+            const evalSpan = document.getElementById('eval-c2');
+            document.getElementById('solution-c').style.display = 'block';
+            currentData.userInputs.c2 = input.value;
+
+            if (!input.value.trim()) {
+                icon.innerText = '⚠️'; evalSpan.innerText = '(未作答)';
+                currentData.statuses.c = 'empty'; return;
+            }
+
+            let userVal = parseInt(input.value);
+            const correctVal = currentData.answers.c;
+
+            if (isNaN(userVal)) {
+                icon.innerText = '✗'; icon.className = 'status-icon incorrect'; evalSpan.innerText = '';
+                currentData.statuses.c = 'incorrect'; return;
+            }
+
+            evalSpan.innerText = `= ${userVal} 股`;
+            currentData.evalTexts.c2 = evalSpan.innerText;
+
+            if (userVal === correctVal) {
+                icon.innerText = '✓'; icon.className = 'status-icon correct'; currentData.statuses.c = 'correct';
+            } else {
+                icon.innerText = '✗'; icon.className = 'status-icon incorrect'; currentData.statuses.c = 'incorrect';
+            }
+        }
+        else if (step === 'd') {
+            const input = document.getElementById('ans-d');
+            const icon = document.getElementById('icon-d');
+            const evalSpan = document.getElementById('eval-d');
+            document.getElementById('solution-d').style.display = 'block';
+            currentData.userInputs.d = input.value;
+
+            if (!input.value.trim()) {
+                icon.innerText = '⚠️'; evalSpan.innerText = '(未作答)';
+                currentData.statuses.d = 'empty'; return;
+            }
+
+            let userVal = safeEval(input.value);
+            const correctVal = currentData.answers.d;
+
+            if (isNaN(userVal)) {
+                icon.innerText = '✗'; icon.className = 'status-icon incorrect'; evalSpan.innerText = '';
+                currentData.statuses.d = 'incorrect'; return;
+            }
+
+            evalSpan.innerText = `= ${userVal}`;
+            currentData.evalTexts.d = evalSpan.innerText;
+
+            if (Math.abs(userVal - correctVal) < 0.01) {
+                icon.innerText = '✓'; icon.className = 'status-icon correct'; currentData.statuses.d = 'correct';
+            } else {
+                icon.innerText = '✗'; icon.className = 'status-icon incorrect'; currentData.statuses.d = 'incorrect';
+            }
+        }
+    }
+
+    function nextQuestion() {
+        if (viewingHistoryIndex !== null) {
+            backToCurrent();
+        }
+
+        questionHistory.push(JSON.parse(JSON.stringify(currentData)));
+        completedCount++;
+        document.getElementById('completed-count').innerText = completedCount;
+        
+        generateQuestion();
+    }
+
+    function updateHistoryButtonsVisibility() {
+        const hasHistory = questionHistory.length > 0;
+        document.getElementById('btn-prev-history').style.display = hasHistory ? 'inline-block' : 'none';
+        document.getElementById('history-label').style.display = hasHistory ? 'inline-block' : 'none';
+    }
+
+    function viewHistory(direction) {
+        if (viewingHistoryIndex === null) {
+            if (questionHistory.length === 0) return;
+            viewingHistoryIndex = questionHistory.length - 1;
+        } else {
+            viewingHistoryIndex += direction;
+            if (viewingHistoryIndex >= questionHistory.length) {
+                backToCurrent();
+                return;
+            }
+            if (viewingHistoryIndex < 0) {
+                viewingHistoryIndex = 0;
+            }
+        }
+
+        renderHistoryItem(viewingHistoryIndex);
+    }
+
+    function renderHistoryItem(index) {
+        const item = questionHistory[index];
+        
+        document.getElementById('problem').innerHTML = 
+            `<strong>${item.company}</strong> 現價每股 $${item.price}，末期息每股 $${item.dividend}，某人持有 ${item.hands} 手，每手 ${item.sharesPerHand} 股。`;
+        document.getElementById('label-c').innerText = `(c) 換股價 $${item.convertPrice}，最多可換多少股？`;
+
+        document.getElementById('ans-a').value = item.userInputs.a || '';
+        document.getElementById('eval-a').innerText = item.evalTexts.a || '';
+        setStepStatus('a', item.statuses.a, 'icon-a');
+
+        document.getElementById('ans-b').value = item.userInputs.b || '';
+        document.getElementById('eval-b').innerText = item.evalTexts.b || '';
+        setStepStatus('b', item.statuses.b, 'icon-b');
+
+        document.getElementById('ans-c1').value = item.userInputs.c1 || '';
+        document.getElementById('eval-c1').innerText = item.evalTexts.c1 || '';
+
+        document.getElementById('ans-c2').value = item.userInputs.c2 || '';
+        document.getElementById('eval-c2').innerText = item.evalTexts.c2 || '';
+        setStepStatus('c', item.statuses.c, 'icon-c');
+
+        document.getElementById('ans-d').value = item.userInputs.d || '';
+        document.getElementById('eval-d').innerText = item.evalTexts.d || '';
+        setStepStatus('d', item.statuses.d, 'icon-d');
+
+        inputSequence.forEach(id => document.getElementById(id).disabled = true);
+
+        ['a', 'b', 'c', 'd'].forEach(step => {
+            document.getElementById(`solution-${step}`).style.display = 'block';
+            document.getElementById(`body-${step}`).style.display = 'block';
+            const btn = document.querySelector(`#step-${step} .btn-toggle`);
+            if(btn) btn.innerText = '摺疊 🔼';
+        });
+
+        document.getElementById('solution-a').innerHTML = `💡 <strong>解法：</strong> 股息率 = (${item.dividend} ÷ ${item.price}) × 100% = <strong>${item.answers.a.toFixed(2)}%</strong>`;
+        document.getElementById('solution-b').innerHTML = `💡 <strong>解法：</strong> 總股息 = ${item.totalShares} × ${item.dividend} = <strong>$${item.answers.b.toFixed(2)}</strong>`;
+        document.getElementById('solution-c').innerHTML = `💡 <strong>解法：</strong> 最多可換股數 = ${item.answers.b.toFixed(2)} ÷ ${item.convertPrice} = <strong>${item.answers.c} 股</strong>`;
+        document.getElementById('solution-d').innerHTML = `💡 <strong>解法：</strong> 餘下股息 = ${item.answers.b.toFixed(2)} - (${item.answers.c} × ${item.convertPrice}) = <strong>$${item.answers.d.toFixed(2)}</strong>`;
+
+        document.getElementById('mode-banner').style.display = 'block';
+        document.getElementById('history-label').innerText = `紀錄第 ${index + 1} / ${questionHistory.length} 題`;
+        document.getElementById('btn-prev-history').style.display = index > 0 ? 'inline-block' : 'inline-block';
+        document.getElementById('btn-next-history').style.display = index < questionHistory.length - 1 ? 'inline-block' : 'none';
+        document.getElementById('btn-back-current').style.display = 'inline-block';
+    }
+
+    function setStepStatus(step, status, iconId) {
+        const icon = document.getElementById(iconId);
+        if (status === 'correct') {
+            icon.innerText = '✓'; icon.className = 'status-icon correct';
+        } else if (status === 'incorrect') {
+            icon.innerText = '✗'; icon.className = 'status-icon incorrect';
+        } else if (status === 'empty') {
+            icon.innerText = '⚠️'; icon.className = 'status-icon';
+        } else {
+            icon.innerText = ''; icon.className = 'status-icon';
+        }
+    }
+
+    function backToCurrent() {
+        viewingHistoryIndex = null;
+        renderCurrentQuestion();
+        resetForm();
+    }
+
+    const mapping = {
+        'ans-a': 'a',
+        'ans-b': 'b',
+        'ans-c1': 'c1',
+        'ans-c2': 'c2',
+        'ans-d': 'd'
+    };
+
+    inputSequence.forEach((id, idx) => {
+        const input = document.getElementById(id);
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitAnswer(mapping[id]);
+
+                if (idx < inputSequence.length - 1) {
+                    document.getElementById(inputSequence[idx + 1]).focus();
+                }
+            }
+        });
+    });
+
+    generateQuestion();
+</script>
+
+</body>
+</html>
